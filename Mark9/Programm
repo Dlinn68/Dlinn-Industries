@@ -1,0 +1,158 @@
+#include <stdio.h>
+#define MAXLINE 1024
+void main()
+{
+	FILE *fpin; // входной файл
+	FILE *fpout; // выходной файл
+	char line[MAXLINE]; // текущая строка
+	char *ptr;
+	char c;
+	int cnt = 0, i = 0, n = 0;
+	fopen_s(&fpin, "test.txt", "rt"); // открыть файл для чтения
+	if (fpin == NULL)
+		return; // ошибка при открытии файла
+	fopen_s(&fpout, "result.txt", "wt"); // открыть файл для записи
+	if (fpout == NULL)
+		return; // ошибка при открытии файла
+	while (!feof(fpin))// цикл до конца входного файла
+	{
+		ptr = fgets(line, MAXLINE, fpin); // чтение строки
+		if (ptr == NULL)
+			break; // файл исчерпан
+		while (line[i] != '\0')
+		{
+			cnt++;
+			i++;
+		}
+		while (*ptr != '\0')
+		{
+			c = *ptr;
+			switch (c - 48)
+			{
+			case 0:            /* Note the colon, not a semicolon */
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 2] = line[i];
+				line[n] = 'n';
+				line[n + 1] = 'o';
+				line[n + 2] = 'l';
+				cnt += 2;
+				n += 2;
+				ptr += 2;
+				break;
+			case 1:            /* Note the colon, not a semicolon */
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 3] = line[i];
+				line[n] = 'o';
+				line[n + 1] = 'd';
+				line[n + 2] = 'i';
+				line[n + 3] = 'n';
+				cnt += 3;
+				n += 3;
+				ptr += 3;
+				break;
+			case 2:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 2] = line[i];
+				line[n] = 'd';
+				line[n + 1] = 'v';
+				line[n + 2] = 'a';
+				cnt += 2;
+				n += 2;
+				ptr += 2;
+				break;
+			case 3:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 2] = line[i];
+				line[n] = 't';
+				line[n + 1] = 'r';
+				line[n + 2] = 'i';
+				cnt += 2;
+				n += 2;
+				ptr += 2;
+				break;
+			case 4:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 6] = line[i];
+				line[n] = 'c';
+				line[n + 1] = 'h';
+				line[n + 2] = 'e';
+				line[n + 3] = 't';
+				line[n + 4] = 'i';
+				line[n + 5] = 'r';
+				line[n + 6] = 'e';
+				cnt += 6;
+				n += 6;
+				ptr += 6;
+				break;
+			case 5:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 3] = line[i];
+				line[n] = 'p';
+				line[n + 1] = 'y';
+				line[n + 2] = 'a';
+				line[n + 3] = 't';
+				cnt += 3;
+				n += 3;
+				ptr += 3;
+				break;
+			case 6:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 4] = line[i];
+				line[n] = 's';
+				line[n + 1] = 'h';
+				line[n + 2] = 'e';
+				line[n + 3] = 's';
+				line[n + 4] = 't';
+				cnt += 4;
+				n += 4;
+				ptr += 4;
+				break;
+			case 7:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 2] = line[i];
+				line[n] = 's';
+				line[n + 1] = 'e';
+				line[n + 2] = 'm';
+				cnt += 2;
+				n += 2;
+				ptr += 2;
+				break;
+			case 8:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 4] = line[i];
+				line[n] = 'v';
+				line[n + 1] = 'o';
+				line[n + 2] = 's';
+				line[n + 3] = 'e';
+				line[n + 4] = 'm';
+				cnt += 4;
+				n += 4;
+				ptr += 4;
+				break;
+			case 9:
+				for (i = cnt; n - 2 < i; i--)
+					line[i + 5] = line[i];
+				line[n] = 'd';
+				line[n + 1] = 'e';
+				line[n + 2] = 'v';
+				line[n + 3] = 'y';
+				line[n + 4] = 'a';
+				line[n + 5] = 't';
+				cnt += 5;
+				n += 5;
+				ptr += 5;
+				break;
+			default:
+				n++;
+				ptr++;
+			}
+		}
+		fputs(line, fpout); // запись строки
+		n = 0;
+		cnt = 0;
+		for (i = 0; i < MAXLINE; i++)
+			line[i] = '\0';
+	}
+	fclose(fpin); // закрыть входной файл
+	fclose(fpout); // закрыть выходной файл
+}
