@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <malloc.h>
+#include <conio.h>
+#define MAXLINE 1024
+#define NLINES 10
+
+void main()
+{
+	FILE *fpin; // входной файл
+	FILE *fpout; // выходной файл
+	char lin[MAXLINE]; // текущая строка
+	char **p = NULL;
+	char c = 0;
+	int len = 0, npointers;
+	int i = 0, n = 0;
+
+	fopen_s(&fpin, "test.txt", "rt"); // открыть файл для чтения
+	if (fpin == NULL)
+		return; // ошибка при открытии файла
+
+	fopen_s(&fpout, "result.txt", "wt"); // открыть файл для записи
+	if (fpout == NULL)
+		return; // ошибка при открытии файла
+
+	p = (char**)malloc(NLINES * sizeof(char*));
+	// обнулить массив указателей
+	memset(p, 0, NLINES * sizeof(char*));
+	npointers = NLINES;
+	while (!feof(fpin))// цикл до конца входного файла
+	{
+		c = fgetc(fpin); // чтение строки
+		if ((i != 0) || (c != ' '))
+			lin[i++] = c;
+		if (lin[i-1] == '.')
+		{
+			lin[i] = '\0';
+			len = (int)strlen(lin);
+			if (n == npointers)
+			{
+				// динамический массив исчерпан
+				npointers += NLINES;// увеличить число указателей в массиве
+				// перезаказать память для массива указателей
+				p = (char**)realloc(p, npointers *sizeof(char*));
+				// обнулить новую часть массива указателе
+				memset(&p[n], 0, NLINES * sizeof(char*));
+			}
+			p[n] = (char*)malloc(len + 1);
+			strcpy(p[n], lin);
+			n++;
+			for (i = 0; i < MAXLINE; i++)
+				lin[i] = '\0';
+			i = 0;
+		}
+	}
+	for (i = 0; i < n; i++)
+	{
+		fputs(p[i], fpout);
+		fprintf(fpout, "\n");
+	}
+	// отказаться от памяти для строк
+	for (i = 0; i < n; i++)
+	{
+		if (p[i] != NULL)
+			free(p[i]);
+	}
+	// отказаться от динамического массива указателей
+	if (p != NULL)
+		free(p);
+	fclose(fpin); // закрыть входной файл
+	fclose(fpout); // закрыть выходной файл
+}
