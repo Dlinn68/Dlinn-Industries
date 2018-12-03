@@ -1,0 +1,48 @@
+   #include <stdio.h>
+#include <stdlib.h>
+#include<string.h> //для работы со строками
+#include <windows.h>
+#include <conio.h>
+#pragma warning (disable:4996)
+
+int main()
+{
+	HANDLE hConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsoleHandle, 0 | 15);
+	FILE *file;
+	char *fname = "test.txt";
+	char result_sting[125];
+	file = fopen(fname, "r");
+	if (file == NULL)
+	{
+		printf("Error opening file! '%s'", fname);
+		return 0;
+	}
+
+	int i = 0;
+	char *real_tail;
+	while (fgets(result_sting, sizeof(result_sting), file)) //объем хранения в байта х для типа операнд
+	{
+		real_tail = "";
+		if (result_sting[strlen(result_sting) - 1] == '\n')
+		{
+			result_sting[strlen(result_sting) - 1] = '\0';
+		}
+		int help_1 = strstr(result_sting, "const int");
+		int help_2 = strstr(result_sting, "=0");
+		if (help_1 != NULL && help_2 != NULL)
+		{
+			SetConsoleTextAttribute(hConsoleHandle, 4 | 9);
+			printf("%s\n", result_sting);
+			SetConsoleTextAttribute(hConsoleHandle, 0 | 15);
+		}
+		else
+		{
+			SetConsoleTextAttribute(hConsoleHandle, 0 | 15);
+			printf("%s%s\n", result_sting, real_tail);
+		}
+	}
+	fclose(file);
+	_getch();
+	return 0;
+}
