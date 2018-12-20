@@ -1,0 +1,320 @@
+#include "stdio.h"
+#include "locale.h"
+#include "windows.h"
+#include "stdlib.h"
+#include "string.h"
+#pragma warning(disable : 4996)
+#define MAX 1000
+#define CANCEL 777
+#define TEXT_CANCEL '-'
+#define PERESADKA_MIN 16
+#define PERESADKA_HOUR 0
+typedef struct // Создание структуры
+{
+	char name[100];
+	char addr[100];
+	int kol_vo;
+	int marshrut[100];
+
+}OSTANOVKA;
+
+OSTANOVKA usel() //считывание из консоли нового элемента
+{
+	int flag = 0;
+	OSTANOVKA ost;
+	int i = 0;
+	printf("\nНазвание остановки: ");
+	scanf("%s", &ost.name);
+	printf("\nАдрес остановки: ");
+	scanf("%s", &ost.addr);
+	printf("\nСколько маршрутов ходит через эту остановку: ");
+	scanf("%d", &ost.kol_vo);
+	printf("\nМаршруты идущие через эту остановку: ");
+	for (i = 0; i < ost.kol_vo; i++)
+	{
+		scanf("%d", &ost.marshrut[i]);
+		if (ost.marshrut[i] < 0)
+			flag = 1;
+	}
+	if (flag == 1)
+	{
+		printf("\n\aВведены некорректные данные. Повторите ввод\n ");
+		ost.marshrut[0] = -1;
+	}
+	return ost;
+}
+void in(FILE *f, OSTANOVKA *ost, int *size) //вывод в файл	
+{
+	fread(size, sizeof(int), 1, f);
+	fread(ost, sizeof(OSTANOVKA), *size, f);
+}
+void out(FILE *f, OSTANOVKA *ost, int size) //вывод в файл
+{
+	fwrite(&size, sizeof(int), 1, f);
+	fwrite(ost, sizeof(OSTANOVKA), size, f);
+}
+int main()
+{
+	FILE *f;
+	OSTANOVKA ostanovki[100];
+	int NE_SLOMATb = 0;
+	char name[100];
+	char addr[100];
+	char nazvanie[100];
+	int marshrut[15];
+	int nomera_marshrutov1[15];
+	int nomera_marshrutov2[15];
+	int flag_peresadok = 0, flag = 0;
+	int size = 0, i, j, n, x, y, z = 0, a = 0, G = 0, F = 0;
+	setlocale(LC_ALL, "");
+	fopen_s(&f, "f.cxc", "rb");
+	if (f)
+	{
+		in(f, ostanovki, &size);
+		fclose(f);
+	}
+	fopen_s(&f, "f.cxc", "wb");
+	while (1)
+	{
+		printf("Введите:\n|1| - если хотите добавить узел пересадки\n");
+		printf("|2| - если хотите редактировать данные\n");
+		printf("|3| - если хотите удалить узел пересадки\n");
+		printf("|4| - если хотите подобрать маршрут с не более чем одной пересадкой\n");
+		printf("|5| - если хотите вывести список всех узлов пересадок\n");
+		printf("|0| - если хотите выйти\n>");
+		scanf("%d", &i);
+		switch (i)
+		{
+		case 1:
+			do
+			{
+				ostanovki[size] = usel();
+				rewind(stdin);
+				printf("\n");
+			} while (ostanovki[size].marshrut[0] == -1);
+			size++;
+			break;
+		case 2:
+			if (size > 0)
+			{
+				printf("\nРедактирование записи\n");
+				printf("\n№  Название\t\t\tАдрес\t\t\tМаршруты\n\n");
+				for (i = 0; i < size; i++)
+				{
+					printf("%d) %-29s%-27s", i, ostanovki[i].name, ostanovki[i].addr);
+					for (z = 0; z < ostanovki[i].kol_vo; z++)
+						printf("%d ", ostanovki[i].marshrut[z]);
+					printf("\n");
+				}
+				printf("\nУкажите номер остановки: ");
+				scanf("%d", &i);
+				if (i == CANCEL)
+				{
+					printf("\a*Отмена*\n\n");
+					break;
+				}
+				if (i < size)
+				{
+					do
+					{
+						ostanovki[i] = usel();
+						rewind(stdin);
+					} while (ostanovki[i].marshrut == -1);
+				}
+				else
+					printf("\n\aТакой остановки нет\n");
+				printf("\n");
+			}
+			else
+				printf("\n\aБаза пуста\n");
+			break;
+		case 3:
+
+			if (size > 0)
+			{
+				printf("\nУдаление записи\n");
+				printf("\n№  Название\t\t\tАдрес\t\t\tМаршруты\n\n");
+				for (i = 0; i < size; i++)
+				{
+					printf("%d) %-29s%-27s", i, ostanovki[i].name, ostanovki[i].addr);
+					for (z = 0; z < ostanovki[i].kol_vo; z++)
+						printf("%d ", ostanovki[i].marshrut[z]);
+					printf("\n");
+				}
+				printf("\nУкажите номер остановки: ");
+				scanf("%d", &i);
+				if (i == CANCEL)
+				{
+					printf("\a*Отмена*\n\n");
+					break;
+				}
+				if (i < size)
+				{
+					--size;
+					for (; i < size; i++)
+						ostanovki[i] = ostanovki[i + 1];
+				}
+				else
+					printf("\n\aТакой остановки нет\n");
+				printf("\n");
+			}
+			else
+				printf("\n\aБаза пуста\n");
+			break;
+		case 4:
+			printf("\n№  Название\t\t\tАдрес\t\t\tМаршруты\n\n");
+			for (i = 0; i < size; i++)
+			{
+				printf("%d) %-29s%-27s", i, ostanovki[i].name, ostanovki[i].addr);
+				for (z = 0; z < ostanovki[i].kol_vo; z++)
+					printf("%d ", ostanovki[i].marshrut[z]);
+				printf("\n");
+			}
+			printf("\nОткуда(название остановки): ");
+			scanf("%s", &nazvanie);
+			if (nazvanie[0] == TEXT_CANCEL)
+			{
+				printf("\a*Отмена*\n\n");
+				break;
+			}
+			for (i = 0; i < size; i++)
+			{
+				if (strcmp(nazvanie, ostanovki[i].name) == 0)
+				{
+					G = i;
+					F = 1;
+					for (j = 0; j < ostanovki[i].kol_vo; j++)
+					{
+						a++;
+						nomera_marshrutov1[j] = ostanovki[i].marshrut[j];
+					}
+					break;
+				}
+			}
+			if (F == 0)
+			{
+				printf("\nТакой остановки нет в списке узлов пересадок\n");
+				break;
+			}
+			F = 0;
+			printf("\nКуда(название остановки): ");
+			scanf("%s", &nazvanie);
+			for (i = 0; i < size; i++)
+			{
+				if (strcmp(nazvanie, ostanovki[i].name) == 0)
+				{
+
+					for (j = 0; j < ostanovki[i].kol_vo; j++)
+					{
+						F = 1;
+						z++;
+						nomera_marshrutov2[j] = ostanovki[i].marshrut[j];
+					}
+					break;
+				}
+			}
+			if (F == 0)
+			{
+				printf("\nТакой остановки нет в списке узлов пересадок\n");
+				break;
+			}
+			F = 0;
+			if (ostanovki[i].name == ostanovki[G].name) {
+				printf("\nВы и так на этой остановке\n");
+				break;
+			}
+			for (i = 0; i < z; i++)
+			{
+				for (j = 0; j < a; j++)
+				{
+					if (nomera_marshrutov2[i] == nomera_marshrutov1[j])
+					{
+						printf("\nПо маршруту %d можно добраться до пункта назначения без пересадок\n", nomera_marshrutov2[i]);
+						flag_peresadok++;
+						break;
+					}
+				}
+				if (flag_peresadok == 1)
+					break;
+			}
+			if (flag_peresadok == 0)
+			{
+				printf("\n||||||||||||||||||||\nНет прямого маршрута\n||||||||||||||||||||\n");
+				for (i = 0; i < size; i++)
+				{
+					for (j = 0; j < a; j++)
+					{
+						for (n = 0; n < ostanovki[i].kol_vo; n++)
+						{
+							if (nomera_marshrutov1[j] == ostanovki[i].marshrut[n])
+							{
+								flag++;
+								for (x = 0; x < z; x++)
+								{
+									for (y = 0; y < ostanovki[i].kol_vo; y++)
+									{
+										if (nomera_marshrutov2[x] == ostanovki[i].marshrut[y])
+										{
+											flag++;
+											if (flag == 2)
+												break;
+										}
+									}
+									if (flag == 2)
+										break;
+								}
+							}
+							if (flag == 2)
+								break;
+							else
+								flag = 0;
+						}
+
+						if (flag == 2)
+							break;
+					}
+					if (flag == 2)
+						break;
+				}
+
+				if (flag == 2)
+					printf("По маршруту %d можно добраться до остановки %s,\n а от туда по маршруту %d добраться до пункта назначения\n\n", nomera_marshrutov1[j], ostanovki[i].name, nomera_marshrutov2[x]);
+				else
+					printf("От остановки %s нельзя подобрать маршрут с не более чем одной пересадкой\n\n", ostanovki[G].name);
+				flag = 0;
+			}
+			for (j = 0; j < z; j++, NE_SLOMATb++)
+				nomera_marshrutov1[j] = j- NE_SLOMATb;
+			for (j = 0; j < a; j++, NE_SLOMATb++)
+				nomera_marshrutov2[j] = j- NE_SLOMATb;
+			flag_peresadok = 0;
+			a = 0;
+			z = 0;
+			break;
+		case 5:
+			if (size > 0)
+			{
+				printf("\n№  Название\t\t\tАдрес\t\t\tМаршруты\n\n");
+				for (i = 0; i < size; i++)
+				{
+					printf("%d) %-29s%-27s", i, ostanovki[i].name, ostanovki[i].addr);
+					for (z = 0; z < ostanovki[i].kol_vo; z++)
+						printf("%d ", ostanovki[i].marshrut[z]);
+					printf("\n");
+				}
+			}
+			else
+				printf("\n\aБаза пуста\n");
+			printf("\n");
+			break;
+		case 0:
+			out(f, ostanovki, size);
+			fclose(f);
+			return 0;
+		default:
+			printf("\n\aВведена неизвестная команда\n\n");
+			rewind(stdin);
+			break;
+		}
+	}
+}
